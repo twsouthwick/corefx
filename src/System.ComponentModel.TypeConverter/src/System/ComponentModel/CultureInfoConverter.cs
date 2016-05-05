@@ -1,24 +1,27 @@
-//------------------------------------------------------------------------------
-// <copyright file="CultureInfoConverter.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>                                                                
-//------------------------------------------------------------------------------
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
-/*
- */
-namespace System.ComponentModel {
-    using Microsoft.Win32;
-    using System.Collections;
-    using System.ComponentModel.Design.Serialization;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.Reflection;
-    using System.Runtime.Serialization.Formatters;
-    using System.Runtime.Remoting;
-    using System.Runtime.InteropServices;
-    using System.Threading;
-    using System.Security.Permissions;
+using Microsoft.Win32;
+using System.Collections;
+using System.ComponentModel.Design.Serialization;
+using System.Diagnostics;
+using System.Globalization;
+using System.Reflection;
+using System.Runtime.Serialization.Formatters;
+using System.Runtime.Remoting;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Security.Permissions;
 
+// This type is excluded from the project because its purpose is to convert English culture display names to CultureInfo
+// objects and vice versa (e.g. new CultureInfo("ru") <--> "Russian"). To accomplish this it relies on being able to
+// enumerate the execution environment's supported cultures. That's impossible in corefx because the framework relies in
+// turn on the operating system for such information, and some platforms, e.g. Linux and Windows 10, do not provide it.
+// See corefx issue #1669 for more context.
+
+namespace System.ComponentModel
+{
     /// <devdoc>
     /// <para>Provides a type converter to convert <see cref='System.Globalization.CultureInfo'/>
     /// objects to and from various other representations.</para>
@@ -26,14 +29,15 @@ namespace System.ComponentModel {
     [HostProtection(SharedState = true)]
     public class CultureInfoConverter : TypeConverter
     {
-    
-        private StandardValuesCollection values;
+        private StandardValuesCollection _values;
 
         /// <devdoc>
         ///      Retrieves the "default" name for our culture.
         /// </devdoc>
-        private string DefaultCultureString {
-            get {
+        private string DefaultCultureString
+        {
+            get
+            {
                 return SR.GetString(SR.CultureInfoConverterDefaultCultureString);
             }
         }
@@ -41,10 +45,11 @@ namespace System.ComponentModel {
         /// <devdoc>
         ///      Retrieves the Name for a input CultureInfo.
         /// </devdoc>
-        protected virtual string GetCultureName(CultureInfo culture) {
+        protected virtual string GetCultureName(CultureInfo culture)
+        {
             return culture.Name;
         }
-        
+
         /// <devdoc>
         ///    <para>
         ///       Gets a value indicating whether this converter can
@@ -53,8 +58,10 @@ namespace System.ComponentModel {
         ///       the specified context.
         ///    </para>
         /// </devdoc>
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-            if (sourceType == typeof(string)) {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        {
+            if (sourceType == typeof(string))
+            {
                 return true;
             }
             return base.CanConvertFrom(context, sourceType);
@@ -64,8 +71,10 @@ namespace System.ComponentModel {
         ///    <para>Gets a value indicating whether this converter can
         ///       convert an object to the given destination type using the context.</para>
         /// </devdoc>
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) {
-            if (destinationType == typeof(InstanceDescriptor)) {
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+        {
+            if (destinationType == typeof(InstanceDescriptor))
+            {
                 return true;
             }
             return base.CanConvertTo(context, destinationType);
@@ -77,9 +86,10 @@ namespace System.ComponentModel {
         ///       object.
         ///    </para>
         /// </devdoc>
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-
-            if (value is string) {
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        {
+            if (value is string)
+            {
                 // Hack, Only when GetCultureName returns culture.Name, we use CultureInfoMapper 
                 // (Since CultureInfoMapper will transfer Culture.DisplayName to Culture.Name).
                 // Otherwise, we just keep the value unchange.
@@ -92,25 +102,31 @@ namespace System.ComponentModel {
 
                 CultureInfo currentUICulture = Thread.CurrentThread.CurrentUICulture;
 
-                if (culture != null && culture.Equals(CultureInfo.InvariantCulture)) {
+                if (culture != null && culture.Equals(CultureInfo.InvariantCulture))
+                {
                     Thread.CurrentThread.CurrentUICulture = culture;
                 }
 
-                try {
+                try
+                {
                     // Look for the default culture info.
                     //
-                    if (text == null || text.Length == 0 || string.Compare(text, DefaultCultureString, StringComparison.Ordinal) == 0) {
+                    if (text == null || text.Length == 0 || string.Compare(text, DefaultCultureString, StringComparison.Ordinal) == 0)
+                    {
                         retVal = CultureInfo.InvariantCulture;
                     }
 
                     // Now look in our set of installed cultures.
                     //
-                    if (retVal == null) {
+                    if (retVal == null)
+                    {
                         ICollection values = GetStandardValues(context);
                         IEnumerator e = values.GetEnumerator();
-                        while (e.MoveNext()) {
+                        while (e.MoveNext())
+                        {
                             CultureInfo info = (CultureInfo)e.Current;
-                            if (info != null && string.Compare(GetCultureName(info), text, StringComparison.Ordinal) == 0) {
+                            if (info != null && string.Compare(GetCultureName(info), text, StringComparison.Ordinal) == 0)
+                            {
                                 retVal = info;
                                 break;
                             }
@@ -119,21 +135,26 @@ namespace System.ComponentModel {
 
                     // Now try to create a new culture info from this value
                     //
-                    if (retVal == null) {
-                        try {
+                    if (retVal == null)
+                    {
+                        try
+                        {
                             retVal = new CultureInfo(text);
                         }
-                        catch {}
+                        catch { }
                     }
 
                     // Finally, try to find a partial match
                     //
-                    if (retVal == null) {
+                    if (retVal == null)
+                    {
                         text = text.ToLower(CultureInfo.CurrentCulture);
-                        IEnumerator e = values.GetEnumerator();
-                        while (e.MoveNext()) {
+                        IEnumerator e = _values.GetEnumerator();
+                        while (e.MoveNext())
+                        {
                             CultureInfo info = (CultureInfo)e.Current;
-                            if (info != null && GetCultureName(info).ToLower(CultureInfo.CurrentCulture).StartsWith(text)) {
+                            if (info != null && GetCultureName(info).ToLower(CultureInfo.CurrentCulture).StartsWith(text))
+                            {
                                 retVal = info;
                                 break;
                             }
@@ -141,21 +162,23 @@ namespace System.ComponentModel {
                     }
                 }
 
-                finally {
+                finally
+                {
                     Thread.CurrentThread.CurrentUICulture = currentUICulture;
                 }
-                
+
                 // No good.  We can't support it.
                 //
-                if (retVal == null) {
+                if (retVal == null)
+                {
                     throw new ArgumentException(SR.GetString(SR.CultureInfoConverterInvalidCulture, (string)value));
                 }
                 return retVal;
             }
-            
+
             return base.ConvertFrom(context, culture, value);
         }
-        
+
         /// <devdoc>
         ///    <para>
         ///       Converts the given
@@ -163,92 +186,107 @@ namespace System.ComponentModel {
         ///       specified destination type.
         ///    </para>
         /// </devdoc>
-        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
-            if (destinationType == null) {
-                throw new ArgumentNullException("destinationType");
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        {
+            if (destinationType == null)
+            {
+                throw new ArgumentNullException(nameof(destinationType));
             }
 
-            if (destinationType == typeof(string)) {
-
+            if (destinationType == typeof(string))
+            {
                 string retVal;
                 CultureInfo currentUICulture = Thread.CurrentThread.CurrentUICulture;
 
-                if (culture != null && culture.Equals(CultureInfo.InvariantCulture)) {
+                if (culture != null && culture.Equals(CultureInfo.InvariantCulture))
+                {
                     Thread.CurrentThread.CurrentUICulture = culture;
                 }
 
-                try {
-                    if (value == null || value == CultureInfo.InvariantCulture) {
+                try
+                {
+                    if (value == null || value == CultureInfo.InvariantCulture)
+                    {
                         retVal = DefaultCultureString;
                     }
-                    else {
+                    else
+                    {
                         retVal = GetCultureName(((CultureInfo)value));
                     }
                 }
-                finally {
+                finally
+                {
                     Thread.CurrentThread.CurrentUICulture = currentUICulture;
                 }
 
                 return retVal;
             }
-            if (destinationType == typeof(InstanceDescriptor) && value is CultureInfo) {
-                CultureInfo c = (CultureInfo) value;
-                ConstructorInfo ctor = typeof(CultureInfo).GetConstructor(new Type[] {typeof(string)});
-                if (ctor != null) {
-                    return new InstanceDescriptor(ctor, new object[] {c.Name});
+            if (destinationType == typeof(InstanceDescriptor) && value is CultureInfo)
+            {
+                CultureInfo c = (CultureInfo)value;
+                ConstructorInfo ctor = typeof(CultureInfo).GetConstructor(new Type[] { typeof(string) });
+                if (ctor != null)
+                {
+                    return new InstanceDescriptor(ctor, new object[] { c.Name });
                 }
             }
-            
+
             return base.ConvertTo(context, culture, value, destinationType);
         }
-    
+
         /// <devdoc>
         ///    <para>
         ///       Gets a collection of standard values collection for a System.Globalization.CultureInfo
         ///       object using the specified context.
         ///    </para>
         /// </devdoc>
-        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context) {
-           if (values == null) {
-               CultureInfo[] installedCultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures | CultureTypes.NeutralCultures);
-               int invariantIndex = Array.IndexOf(installedCultures, CultureInfo.InvariantCulture);
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            if (_values == null)
+            {
+                CultureInfo[] installedCultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures | CultureTypes.NeutralCultures);
+                int invariantIndex = Array.IndexOf(installedCultures, CultureInfo.InvariantCulture);
 
-               CultureInfo[] array;
-               if (invariantIndex != -1) {
-                   Debug.Assert(invariantIndex >= 0 && invariantIndex < installedCultures.Length);
-                   installedCultures[invariantIndex] = null;
-                   array = new CultureInfo[installedCultures.Length];
-               }
-               else {
-                   array = new CultureInfo[installedCultures.Length + 1];
-               }
+                CultureInfo[] array;
+                if (invariantIndex != -1)
+                {
+                    Debug.Assert(invariantIndex >= 0 && invariantIndex < installedCultures.Length);
+                    installedCultures[invariantIndex] = null;
+                    array = new CultureInfo[installedCultures.Length];
+                }
+                else
+                {
+                    array = new CultureInfo[installedCultures.Length + 1];
+                }
 
-               Array.Copy(installedCultures, array, installedCultures.Length);
-               Array.Sort(array, new CultureComparer(this));
-               Debug.Assert(array[0] == null);
-               if (array[0] == null) {
-                   //we replace null with the real default culture because there are code paths
-                   // where the propgrid will send values from this returned array directly -- instead
-                   // of converting it to a string and then back to a value (which this relied on).
-                   array[0] = CultureInfo.InvariantCulture; //null isn't the value here -- invariantculture is.
-               }
+                Array.Copy(installedCultures, array, installedCultures.Length);
+                Array.Sort(array, new CultureComparer(this));
+                Debug.Assert(array[0] == null);
+                if (array[0] == null)
+                {
+                    //we replace null with the real default culture because there are code paths
+                    // where the propgrid will send values from this returned array directly -- instead
+                    // of converting it to a string and then back to a value (which this relied on).
+                    array[0] = CultureInfo.InvariantCulture; //null isn't the value here -- invariantculture is.
+                }
 
-               values = new StandardValuesCollection(array);
-           }
-           
-           return values;
+                _values = new StandardValuesCollection(array);
+            }
+
+            return _values;
         }
-    
+
         /// <devdoc>
         ///    <para>
         ///       Gets a value indicating whether the list of standard values returned from
         ///       System.ComponentModel.CultureInfoConverter.GetStandardValues is an exclusive list.
         ///    </para>
         /// </devdoc>
-        public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) {
+        public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+        {
             return false;
         }
-        
+
         /// <devdoc>
         ///    <para>
         ///       Gets a value indicating whether this object supports a
@@ -256,72 +294,80 @@ namespace System.ComponentModel {
         ///       context.
         ///    </para>
         /// </devdoc>
-        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+        {
             return true;
         }
-        
+
         /// <devdoc>
         ///      IComparer object used for sorting CultureInfos
         ///      WARNING:  If you change where null is positioned, then you must fix CultureConverter.GetStandardValues!
         /// </devdoc>
-        private class CultureComparer : IComparer {
+        private class CultureComparer : IComparer
+        {
+            private CultureInfoConverter _converter;
 
-            private CultureInfoConverter converter;
-
-            public CultureComparer(CultureInfoConverter cultureConverter) {
+            public CultureComparer(CultureInfoConverter cultureConverter)
+            {
                 Debug.Assert(cultureConverter != null);
-                converter = cultureConverter;
+                _converter = cultureConverter;
             }
 
-            public int Compare(object item1, object item2) {
-            
-                if (item1 == null) {
-                
+            public int Compare(object item1, object item2)
+            {
+                if (item1 == null)
+                {
                     // If both are null, then they are equal
                     //
-                    if (item2 == null) {
+                    if (item2 == null)
+                    {
                         return 0;
                     }
 
                     // Otherwise, item1 is null, but item2 is valid (greater)
                     //
-                    return -1; 
-                }
-                
-                if (item2 == null) {
-                
-                    // item2 is null, so item 1 is greater
-                    //
-                    return 1; 
+                    return -1;
                 }
 
-                String itemName1 = converter.GetCultureName(((CultureInfo)item1));
-                String itemName2 = converter.GetCultureName(((CultureInfo)item2));
+                if (item2 == null)
+                {
+                    // item2 is null, so item 1 is greater
+                    //
+                    return 1;
+                }
+
+                String itemName1 = _converter.GetCultureName(((CultureInfo)item1));
+                String itemName2 = _converter.GetCultureName(((CultureInfo)item2));
 
                 CompareInfo compInfo = (CultureInfo.CurrentCulture).CompareInfo;
                 return compInfo.Compare(itemName1, itemName2, CompareOptions.StringSort);
             }
         }
 
-        private static class CultureInfoMapper {
+        private static class CultureInfoMapper
+        {
             ///  Dictionary of CultureInfo.DisplayName, CultureInfo.Name for cultures that have changed DisplayName over releases.
             ///  This is to workaround an issue with CultureInfoConverter that serializes DisplayName (fixing it would introduce breaking changes).
-            private static volatile System.Collections.Generic.Dictionary<string, string> cultureInfoNameMap;
+            private static volatile System.Collections.Generic.Dictionary<string, string> s_cultureInfoNameMap;
 
-            public static string GetCultureInfoName(string cultureInfoDisplayName) {
-                if (cultureInfoNameMap == null) {
+            public static string GetCultureInfoName(string cultureInfoDisplayName)
+            {
+                if (s_cultureInfoNameMap == null)
+                {
                     InitializeCultureInfoMap();
                 }
 
-                if (cultureInfoNameMap.ContainsKey(cultureInfoDisplayName)) {
-                    return cultureInfoNameMap[cultureInfoDisplayName];
+                if (s_cultureInfoNameMap.ContainsKey(cultureInfoDisplayName))
+                {
+                    return s_cultureInfoNameMap[cultureInfoDisplayName];
                 }
 
                 return cultureInfoDisplayName;
             }
 
-            private static void InitializeCultureInfoMap() {
-                cultureInfoNameMap = new System.Collections.Generic.Dictionary<string, string>() {
+            private static void InitializeCultureInfoMap()
+            {
+                s_cultureInfoNameMap = new System.Collections.Generic.Dictionary<string, string>() {
                     {"Afrikaans", "af"},
                     {"Afrikaans (South Africa)", "af-ZA"},
                     {"Albanian", "sq"},
@@ -495,7 +541,7 @@ namespace System.ComponentModel {
                     {"Mongolian (Traditional Mongolian, PRC)", "mn-Mong-CN"},
                     {"Nepali (Nepal)", "ne-NP"},
                     {"Norwegian", "no"},
-                    {"Norwegian, Bokmål (Norway)", "nb-NO"},
+                    {"Norwegian, Bokm\uFFFDl (Norway)", "nb-NO"},
                     {"Norwegian, Nynorsk (Norway)", "nn-NO"},
                     {"Occitan (France)", "oc-FR"},
                     {"Oriya (India)", "or-IN"},

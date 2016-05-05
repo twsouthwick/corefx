@@ -1,25 +1,20 @@
-//------------------------------------------------------------------------------
-// <copyright file="TypeDescriptionProvider.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>                                                                
-//------------------------------------------------------------------------------
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
-namespace System.ComponentModel {
+using System.Collections;
+using System.Reflection;
 
-    using System;
-    using System.Collections;
-    using System.Reflection;
-    using System.Security.Permissions;
-
+namespace System.ComponentModel
+{
     /// <devdoc>
     ///     The TypeDescriptionProvider class can be thought of as a "plug-in" for 
     ///     TypeDescriptor.  There can be multiple type description provider classes 
     ///     all offering metadata to TypeDescriptor
     /// </devdoc>
-    [HostProtection(SharedState = true)]
-    public abstract class TypeDescriptionProvider 
+    public abstract class TypeDescriptionProvider
     {
-        private TypeDescriptionProvider   _parent;
+        private readonly TypeDescriptionProvider _parent;
         private EmptyCustomTypeDescriptor _emptyDescriptor;
 
         /// <devdoc>
@@ -63,11 +58,12 @@ namespace System.ComponentModel {
                 return _parent.CreateInstance(provider, objectType, argTypes, args);
             }
 
-            if (objectType == null) {
-                throw new ArgumentNullException("objectType");
+            if (objectType == null)
+            {
+                throw new ArgumentNullException(nameof(objectType));
             }
 
-            return SecurityUtils.SecureCreateInstance(objectType, args);
+            return Activator.CreateInstance(objectType, args);
         }
 
         /// <devdoc>
@@ -81,7 +77,7 @@ namespace System.ComponentModel {
         ///     The GetCache method returns an instance of this cache.  GetCache will return 
         ///     null if there is no supported cache for an object.
         /// </devdoc>
-	    public virtual IDictionary GetCache(object instance)
+        public virtual IDictionary GetCache(object instance)
         {
             if (_parent != null)
             {
@@ -112,7 +108,8 @@ namespace System.ComponentModel {
                 return _parent.GetExtendedTypeDescriptor(instance);
             }
 
-            if (_emptyDescriptor == null) {
+            if (_emptyDescriptor == null)
+            {
                 _emptyDescriptor = new EmptyCustomTypeDescriptor();
             }
 
@@ -128,8 +125,9 @@ namespace System.ComponentModel {
 
             if (instance == null)
             {
-                throw new ArgumentNullException("instance");
+                throw new ArgumentNullException(nameof(instance));
             }
+
             return new IExtenderProvider[0];
         }
 
@@ -142,8 +140,10 @@ namespace System.ComponentModel {
         ///     If not overridden, the default implementation of this method will call
         ///     GetTypeDescriptor.GetComponentName.
         /// </devdoc>
-        public virtual string GetFullComponentName(object component) {
-            if (_parent != null) {
+        public virtual string GetFullComponentName(object component)
+        {
+            if (_parent != null)
+            {
                 return _parent.GetFullComponentName(component);
             }
 
@@ -173,7 +173,7 @@ namespace System.ComponentModel {
         {
             if (instance == null)
             {
-                throw new ArgumentNullException("instance");
+                throw new ArgumentNullException(nameof(instance));
             }
 
             return GetReflectionType(instance.GetType(), instance);
@@ -213,15 +213,15 @@ namespace System.ComponentModel {
 
             if (reflectionType == null)
             {
-                throw new ArgumentNullException("reflectionType");
+                throw new ArgumentNullException(nameof(reflectionType));
             }
 
-            if (reflectionType.GetType().Assembly == typeof(object).Assembly)
+            if (reflectionType.GetType().GetTypeInfo().Assembly == typeof(object).GetTypeInfo().Assembly)
             {
                 return reflectionType;
             }
 
-            return reflectionType.UnderlyingSystemType;
+            return reflectionType.GetTypeInfo().UnderlyingSystemType;
         }
 
         /// <devdoc>
@@ -249,7 +249,7 @@ namespace System.ComponentModel {
         {
             if (instance == null)
             {
-                throw new ArgumentNullException("instance");
+                throw new ArgumentNullException(nameof(instance));
             }
 
             return GetTypeDescriptor(instance.GetType(), instance);
@@ -276,7 +276,8 @@ namespace System.ComponentModel {
                 return _parent.GetTypeDescriptor(objectType, instance);
             }
 
-            if (_emptyDescriptor == null) {
+            if (_emptyDescriptor == null)
+            {
                 _emptyDescriptor = new EmptyCustomTypeDescriptor();
             }
 
@@ -291,7 +292,7 @@ namespace System.ComponentModel {
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             if (_parent != null)
@@ -306,8 +307,8 @@ namespace System.ComponentModel {
         ///     A simple empty descriptor that is used as a placeholder for times
         ///     when the user does not provide their own.
         /// </devdoc>
-        private sealed class EmptyCustomTypeDescriptor : CustomTypeDescriptor {
+        private sealed class EmptyCustomTypeDescriptor : CustomTypeDescriptor
+        {
         }
     }
 }
-

@@ -1,24 +1,17 @@
-//------------------------------------------------------------------------------
-// <copyright file="IExtenderProvider.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>                                                                
-//------------------------------------------------------------------------------
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
-namespace System.ComponentModel {
-    
-
-    using System.Diagnostics;
-
-    using System;
-
+namespace System.ComponentModel
+{
     /// <devdoc>
     ///    <para>
     ///       Defines the interface
     ///       for extending properties to other components in a container.
     ///    </para>
     /// </devdoc>
-    public interface IExtenderProvider {
-
+    public interface IExtenderProvider
+    {
         /// <devdoc>
         ///    <para>
         ///       Specifies

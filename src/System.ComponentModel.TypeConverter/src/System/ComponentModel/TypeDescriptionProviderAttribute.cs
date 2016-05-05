@@ -1,19 +1,13 @@
-//------------------------------------------------------------------------------
-// <copyright file="TypeDescriptionProviderAttribute.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>                                                                
-//------------------------------------------------------------------------------
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
-namespace System.ComponentModel 
+namespace System.ComponentModel
 {
-
-    using System;
-    using System.Security.Permissions;
-
     /// <devdoc>
     /// </devdoc>
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
-    public sealed class TypeDescriptionProviderAttribute : Attribute 
+    public sealed class TypeDescriptionProviderAttribute : Attribute
     {
         private string _typeName;
 
@@ -24,12 +18,12 @@ namespace System.ComponentModel
         {
             if (typeName == null)
             {
-                throw new ArgumentNullException("typeName");
+                throw new ArgumentNullException(nameof(typeName));
             }
 
             _typeName = typeName;
         }
-    
+
         /// <devdoc>
         ///     Creates a new TypeDescriptionProviderAttribute object.
         /// </devdoc>
@@ -37,7 +31,7 @@ namespace System.ComponentModel
         {
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             _typeName = type.AssemblyQualifiedName;

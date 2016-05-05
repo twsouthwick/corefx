@@ -1,56 +1,29 @@
-//------------------------------------------------------------------------------
-// <copyright file="AttributeCollection.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>                                                                
-//------------------------------------------------------------------------------
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
-using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Collections;
 
-/*
- This class has the HostProtectionAttribute. The purpose of this attribute is to enforce host-specific programming model guidelines, not security behavior. 
- Suppress FxCop message - BUT REVISIT IF ADDING NEW SECURITY ATTRIBUTES.
-*/
-[assembly: SuppressMessage("Microsoft.Security", "CA2112:SecuredTypesShouldNotExposeFields", Scope="type", Target="System.ComponentModel.AttributeCollection")]
-[assembly: SuppressMessage("Microsoft.Security", "CA2112:SecuredTypesShouldNotExposeFields", Scope="type", Target="System.ComponentModel.AttributeCollection")]
-[assembly: SuppressMessage("Microsoft.Security", "CA2123:OverrideLinkDemandsShouldBeIdenticalToBase", Scope="member", Target="System.ComponentModel.AttributeCollection.CopyTo(System.Array,System.Int32):System.Void")]
-[assembly: SuppressMessage("Microsoft.Security", "CA2123:OverrideLinkDemandsShouldBeIdenticalToBase", Scope="member", Target="System.ComponentModel.AttributeCollection.System.Collections.IEnumerable.GetEnumerator():System.Collections.IEnumerator")]
-[assembly: SuppressMessage("Microsoft.Security", "CA2123:OverrideLinkDemandsShouldBeIdenticalToBase", Scope="member", Target="System.ComponentModel.AttributeCollection.System.Collections.ICollection.get_IsSynchronized():System.Boolean")]
-[assembly: SuppressMessage("Microsoft.Security", "CA2123:OverrideLinkDemandsShouldBeIdenticalToBase", Scope="member", Target="System.ComponentModel.AttributeCollection.System.Collections.ICollection.get_Count():System.Int32")]
-[assembly: SuppressMessage("Microsoft.Security", "CA2123:OverrideLinkDemandsShouldBeIdenticalToBase", Scope="member", Target="System.ComponentModel.AttributeCollection.System.Collections.ICollection.get_SyncRoot():System.Object")]
-[assembly: SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Scope="member", Target="System.ComponentModel.AttributeCollection.Contains(System.Attribute):System.Boolean")]
-[assembly: SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Scope="member", Target="System.ComponentModel.AttributeCollection.CopyTo(System.Array,System.Int32):System.Void")]
-[assembly: SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Scope="member", Target="System.ComponentModel.AttributeCollection..ctor(System.Attribute[])")]
-[assembly: SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Scope="member", Target="System.ComponentModel.AttributeCollection.GetEnumerator():System.Collections.IEnumerator")]
-[assembly: SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Scope="member", Target="System.ComponentModel.AttributeCollection.get_Item(System.Type):System.Attribute")]
-[assembly: SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Scope="member", Target="System.ComponentModel.AttributeCollection.get_Item(System.Int32):System.Attribute")]
-[assembly: SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Scope="member", Target="System.ComponentModel.AttributeCollection.get_Count():System.Int32")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2112:SecuredTypesShouldNotExposeFields", Scope = "type", Target = "System.ComponentModel.AttributeCollection")]
 
-namespace System.ComponentModel 
+namespace System.ComponentModel
 {
-
-    using System.Reflection;
-    using System.Diagnostics;
-    using System.Collections;
-
-    
     /// <devdoc>
     ///     Represents a collection of attributes.
     /// </devdoc>
-    [System.Runtime.InteropServices.ComVisibleAttribute(true)]
-    [System.Security.Permissions.HostProtection(Synchronization=true)]
     public class AttributeCollection : ICollection
     {
-
         /// <devdoc>
         ///     An empty AttributeCollection that can used instead of creating a new one.
         /// </devdoc>
-        public static readonly AttributeCollection Empty = new AttributeCollection((Attribute[])null);
-        private static Hashtable _defaultAttributes;
+        public static readonly AttributeCollection Empty = new AttributeCollection(null);
+        private static Hashtable s_defaultAttributes;
 
         private Attribute[] _attributes;
-        
-        private static object internalSyncObject = new object();
-        
+
+        private static readonly object s_internalSyncObject = new object();
+
         private struct AttributeEntry
         {
             public Type type;
@@ -60,25 +33,21 @@ namespace System.ComponentModel
         private const int FOUND_TYPES_LIMIT = 5;
 
         private AttributeEntry[] _foundAttributeTypes;
-		
-		private int _index = 0;
+
+        private int _index = 0;
 
         /// <devdoc>
         ///     Creates a new AttributeCollection.
         /// </devdoc>
         public AttributeCollection(params Attribute[] attributes)
         {
-            if (attributes == null)
-            {
-                attributes = new Attribute[0];
-            }
-            _attributes = attributes;
+            _attributes = attributes ?? new Attribute[0];
 
-            for (int idx = 0; idx < attributes.Length; idx++)
+            for (int idx = 0; idx < _attributes.Length; idx++)
             {
-                if (attributes[idx] == null)
+                if (_attributes[idx] == null)
                 {
-                    throw new ArgumentNullException("attributes");
+                    throw new ArgumentNullException(nameof(attributes));
                 }
             }
         }
@@ -87,7 +56,6 @@ namespace System.ComponentModel
         {
         }
 
-        
         /// <devdoc>
         ///     Creates a new AttributeCollection from an existing AttributeCollection
         /// </devdoc>
@@ -98,7 +66,7 @@ namespace System.ComponentModel
             // 
             if (existing == null)
             {
-                throw new ArgumentNullException("existing");
+                throw new ArgumentNullException(nameof(existing));
             }
 
             if (newAttributes == null)
@@ -114,7 +82,7 @@ namespace System.ComponentModel
             {
                 if (newAttributes[idx] == null)
                 {
-                    throw new ArgumentNullException("newAttributes");
+                    throw new ArgumentNullException(nameof(newAttributes));
                 }
 
                 // We must see if this attribute is already in the existing
@@ -122,7 +90,7 @@ namespace System.ComponentModel
                 bool match = false;
                 for (int existingIdx = 0; existingIdx < existing.Count; existingIdx++)
                 {
-                    if (newArray[existingIdx].TypeId.Equals(newAttributes[idx].TypeId))
+                    if (newArray[existingIdx].GetTypeId().Equals(newAttributes[idx].GetTypeId()))
                     {
                         match = true;
                         newArray[existingIdx] = newAttributes[idx];
@@ -156,8 +124,7 @@ namespace System.ComponentModel
         /// <devdoc>
         ///     Gets the attributes collection.
         /// </devdoc>
-        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays",
-            Justification = "Matches constructor input type")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Matches constructor input type")]
         protected virtual Attribute[] Attributes
         {
             get
@@ -165,13 +132,13 @@ namespace System.ComponentModel
                 return _attributes;
             }
         }
-        
+
         /// <devdoc>
         ///     Gets the number of attributes.
         /// </devdoc>
-        public int Count 
+        public int Count
         {
-            get 
+            get
             {
                 return Attributes.Length;
             }
@@ -180,9 +147,9 @@ namespace System.ComponentModel
         /// <devdoc>
         ///     Gets the attribute with the specified index number.
         /// </devdoc>
-        public virtual Attribute this[int index] 
+        public virtual Attribute this[int index]
         {
-            get 
+            get
             {
                 return Attributes[index];
             }
@@ -191,11 +158,12 @@ namespace System.ComponentModel
         /// <devdoc>
         ///    Gets the attribute with the specified type.
         /// </devdoc>
-        public virtual Attribute this[Type attributeType] 
+        public virtual Attribute this[Type attributeType]
         {
-            get 
+            get
             {
-                lock (internalSyncObject) {
+                lock (s_internalSyncObject)
+                {
                     // 2 passes here for perf.  Really!  first pass, we just 
                     // check equality, and if we don't find it, then we
                     // do the IsAssignableFrom dance.   Turns out that's
@@ -209,19 +177,20 @@ namespace System.ComponentModel
                     }
 
                     int ind = 0;
-     
+
                     for (; ind < FOUND_TYPES_LIMIT; ind++)
                     {
                         if (_foundAttributeTypes[ind].type == attributeType)
                         {
-                           int index = _foundAttributeTypes[ind].index;
-                           if (index != -1)
-                           {
-                               return Attributes[index];
-                           }
-                           else{
-                               return GetDefaultAttribute(attributeType);
-                           }   
+                            int index = _foundAttributeTypes[ind].index;
+                            if (index != -1)
+                            {
+                                return Attributes[index];
+                            }
+                            else
+                            {
+                                return GetDefaultAttribute(attributeType);
+                            }
                         }
                         if (_foundAttributeTypes[ind].type == null)
                             break;
@@ -231,20 +200,20 @@ namespace System.ComponentModel
 
                     if (_index >= FOUND_TYPES_LIMIT)
                     {
-    	                _index = 0;
+                        _index = 0;
                     }
 
                     _foundAttributeTypes[ind].type = attributeType;
 
                     int count = Attributes.Length;
-                    
+
 
                     for (int i = 0; i < count; i++)
                     {
                         Attribute attribute = Attributes[i];
                         Type aType = attribute.GetType();
                         if (aType == attributeType)
-                        {        
+                        {
                             _foundAttributeTypes[ind].index = i;
                             return attribute;
                         }
@@ -255,13 +224,13 @@ namespace System.ComponentModel
                     {
                         Attribute attribute = Attributes[i];
                         Type aType = attribute.GetType();
-                        if (attributeType.IsAssignableFrom(aType))
+                        if (attributeType.GetTypeInfo().IsAssignableFrom(aType.GetTypeInfo()))
                         {
                             _foundAttributeTypes[ind].index = i;
                             return attribute;
                         }
                     }
-                    
+
                     _foundAttributeTypes[ind].index = -1;
                     return GetDefaultAttribute(attributeType);
                 }
@@ -287,7 +256,6 @@ namespace System.ComponentModel
         /// </devdoc>
         public bool Contains(Attribute[] attributes)
         {
-
             if (attributes == null)
             {
                 return true;
@@ -305,37 +273,37 @@ namespace System.ComponentModel
         }
 
         /// <devdoc>
-        ///     Returns the default value for an attribute.  This uses the following hurestic:
+        ///     Returns the default value for an attribute.  This uses the following heuristic:
         ///     1.  It looks for a public static field named "Default".
         /// </devdoc>
         protected Attribute GetDefaultAttribute(Type attributeType)
         {
-            lock (internalSyncObject)
+            lock (s_internalSyncObject)
             {
-                if (_defaultAttributes == null)
+                if (s_defaultAttributes == null)
                 {
-                    _defaultAttributes = new Hashtable();
+                    s_defaultAttributes = new Hashtable();
                 }
 
-                // If we have already encountered this, use what's in the
-                // table.
-                if (_defaultAttributes.ContainsKey(attributeType))
+                // If we have already encountered this, use what's in the table.
+                if (s_defaultAttributes.ContainsKey(attributeType))
                 {
-                    return(Attribute)_defaultAttributes[attributeType];
+                    return (Attribute)s_defaultAttributes[attributeType];
                 }
 
                 Attribute attr = null;
 
-                // Nope, not in the table, so do the legwork to discover the default value.
+                // Not in the table, so do the legwork to discover the default value.
                 Type reflect = TypeDescriptor.GetReflectionType(attributeType);
-                System.Reflection.FieldInfo field = reflect.GetField("Default", BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField);
+                FieldInfo field = reflect.GetTypeInfo().GetField("Default", BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField);
+
                 if (field != null && field.IsStatic)
                 {
                     attr = (Attribute)field.GetValue(null);
                 }
                 else
                 {
-                    ConstructorInfo ci = reflect.UnderlyingSystemType.GetConstructor(new Type[0]);
+                    ConstructorInfo ci = reflect.GetTypeInfo().UnderlyingSystemType.GetTypeInfo().GetConstructor(new Type[0]);
                     if (ci != null)
                     {
                         attr = (Attribute)ci.Invoke(new object[0]);
@@ -349,7 +317,7 @@ namespace System.ComponentModel
                     }
                 }
 
-                _defaultAttributes[attributeType] = attr;
+                s_defaultAttributes[attributeType] = attr;
                 return attr;
             }
         }
@@ -396,28 +364,18 @@ namespace System.ComponentModel
         }
 
         /// <internalonly/>
-        int ICollection.Count 
+        bool ICollection.IsSynchronized
         {
-            get 
-            {
-                return Count;
-            }
-        }
-
-
-        /// <internalonly/>
-        bool ICollection.IsSynchronized 
-        {
-            get 
+            get
             {
                 return false;
             }
         }
 
         /// <internalonly/>
-        object ICollection.SyncRoot 
+        object ICollection.SyncRoot
         {
-            get 
+            get
             {
                 return null;
             }
@@ -430,12 +388,5 @@ namespace System.ComponentModel
         {
             Array.Copy(Attributes, 0, array, index, Attributes.Length);
         }
-
-        /// <internalonly/>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
     }
 }
-
