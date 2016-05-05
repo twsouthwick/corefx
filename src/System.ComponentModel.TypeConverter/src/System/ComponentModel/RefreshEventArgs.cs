@@ -1,52 +1,61 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
+//------------------------------------------------------------------------------
+// <copyright file="RefreshEventArgs.cs" company="Microsoft">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>                                                                
+//------------------------------------------------------------------------------
 
-namespace System.ComponentModel
-{
+/*
+ */
+namespace System.ComponentModel {
+
+    using System;
+    using System.Diagnostics;
+    using System.Security.Permissions;
+
     /// <devdoc>
     ///    <para>
     ///       Provides data for the <see cref='System.ComponentModel.TypeDescriptor.Refresh'/> event.
     ///    </para>
     /// </devdoc>
-    public class RefreshEventArgs : EventArgs
-    {
-        private readonly object _componentChanged;
-        private Type _typeChanged;
+    [HostProtection(SharedState = true)]
+    public class RefreshEventArgs : EventArgs {
+
+        private object componentChanged;
+        private Type   typeChanged;
 
         /// <devdoc>
         ///    <para>
         ///       Initializes a new instance of the <see cref='System.ComponentModel.RefreshEventArgs'/> class with
-        ///       the component that has changed.
+        ///       the component that has
+        ///       changed.
         ///    </para>
         /// </devdoc>
-        public RefreshEventArgs(object componentChanged)
-        {
-            _componentChanged = componentChanged;
-            _typeChanged = componentChanged.GetType();
+        public RefreshEventArgs(object componentChanged) {
+            this.componentChanged = componentChanged;
+            this.typeChanged = componentChanged.GetType();
         }
 
         /// <devdoc>
         ///    <para>
         ///       Initializes a new instance of the <see cref='System.ComponentModel.RefreshEventArgs'/> class with
-        ///       the type of component that has changed.
+        ///       the type
+        ///       of component that has changed.
         ///    </para>
         /// </devdoc>
-        public RefreshEventArgs(Type typeChanged)
-        {
-            _typeChanged = typeChanged;
+        public RefreshEventArgs(Type typeChanged) {
+            this.typeChanged = typeChanged;
         }
 
         /// <devdoc>
         ///    <para>
-        ///       Gets the component that has changed its properties, events, or extenders.
+        ///       Gets the component that has changed
+        ///       its properties, events, or
+        ///       extenders.
         ///    </para>
         /// </devdoc>
-        public object ComponentChanged
-        {
-            get
-            {
-                return _componentChanged;
+        public object ComponentChanged {
+            get {
+                return componentChanged;
             }
         }
 
@@ -55,12 +64,11 @@ namespace System.ComponentModel
         ///       Gets the type that has changed its properties, or events.
         ///    </para>
         /// </devdoc>
-        public Type TypeChanged
-        {
-            get
-            {
-                return _typeChanged;
+        public Type TypeChanged {
+            get {
+                return typeChanged;
             }
         }
     }
 }
+

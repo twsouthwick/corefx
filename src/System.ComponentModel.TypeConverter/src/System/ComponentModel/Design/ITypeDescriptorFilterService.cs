@@ -1,18 +1,26 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
+//------------------------------------------------------------------------------
+// <copyright file="ITypeDescriptorFilterService.cs" company="Microsoft">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>                                                                
+//------------------------------------------------------------------------------
 
-using System.Collections;
+/*
+ */
+namespace System.ComponentModel.Design {
+    using System.Runtime.InteropServices;
+    using System.Diagnostics;
+    using System;
+    using System.Collections;
+    using System.ComponentModel;
 
-namespace System.ComponentModel.Design
-{
     /// <devdoc>
     ///    <para>
-    ///       Modifies the set of type descriptors that a component provides.
+    ///       Modifies the set of type descriptors that a component
+    ///       provides.
     ///    </para>
     /// </devdoc>
-    public interface ITypeDescriptorFilterService
-    {
+    public interface ITypeDescriptorFilterService {
+
         /// <devdoc>
         ///    <para>
         ///       Provides a way to filter the attributes from a component that are displayed to the user.
@@ -35,3 +43,4 @@ namespace System.ComponentModel.Design
         bool FilterProperties(IComponent component, IDictionary properties);
     }
 }
+

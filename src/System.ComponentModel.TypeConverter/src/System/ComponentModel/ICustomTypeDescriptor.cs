@@ -1,14 +1,28 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
+//------------------------------------------------------------------------------
+// <copyright file="ICustomTypeDescriptor.cs" company="Microsoft">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>                                                                
+//------------------------------------------------------------------------------
 
-namespace System.ComponentModel
-{
+/*
+ */
+namespace System.ComponentModel {
+    using System.Runtime.Serialization.Formatters;
+    using System.Runtime.InteropServices;
+    
+
+    using System.Diagnostics;
+
+    using System;
+    using Microsoft.Win32;
+    
+
     /// <devdoc>
-    ///    <para>Provides an interface that provides custom type information for an object.</para>
+    ///    <para>Provides an interface that provides custom type information for an 
+    ///       object.</para>
     /// </devdoc>
-    public interface ICustomTypeDescriptor
-    {
+    public interface ICustomTypeDescriptor {
+
         /// <devdoc>
         /// <para>Gets a collection of type <see cref='System.Attribute'/> with the attributes 
         ///    for this object.</para>
@@ -34,6 +48,7 @@ namespace System.ComponentModel
         ///    <para>Gets the default event for this object.</para>
         /// </devdoc>
         EventDescriptor GetDefaultEvent();
+
 
         /// <devdoc>
         ///    <para>Gets the default property for this object.</para>
@@ -70,5 +85,5 @@ namespace System.ComponentModel
         ///    <para>Gets the object that directly depends on this value being edited.</para>
         /// </devdoc>
         object GetPropertyOwner(PropertyDescriptor pd);
-    }
+   }
 }

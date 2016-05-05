@@ -1,11 +1,15 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
+//------------------------------------------------------------------------------
+// <copyright file="DelegatingTypeDescriptionProvider.cs" company="Microsoft">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>                                                                
+//------------------------------------------------------------------------------
 
-using System.Collections;
+namespace System.ComponentModel {
+    using System;
+    using System.Collections;
+    using System.Reflection;
+    using System.Security.Permissions;
 
-namespace System.ComponentModel
-{
     /// <devdoc>
     ///     This is a simple type description provider that, when invoked demand
     ///     locates the correct type description provider for the given type and
@@ -13,12 +17,14 @@ namespace System.ComponentModel
     ///     based providers.  Conceptually it "links" the provider list for one type
     ///     or instance to its corresponding base type.
     /// </devdoc>
-    internal sealed class DelegatingTypeDescriptionProvider : TypeDescriptionProvider
+    [HostProtection(SharedState = true)]
+    internal sealed class DelegatingTypeDescriptionProvider : TypeDescriptionProvider 
     {
         private Type _type;
 
         /// <devdoc>
-        ///     Creates a new DelegatingTypeDescriptionProvider.  The type is the type we will delegate to.
+        ///     Creates a new DelegatingTypeDescriptionProvider.  The type is the
+        ///     type we will delegate to.
         /// </devdoc>
         internal DelegatingTypeDescriptionProvider(Type type)
         {
@@ -28,10 +34,8 @@ namespace System.ComponentModel
         /// <devdoc>
         ///     
         /// </devdoc>
-        internal TypeDescriptionProvider Provider
-        {
-            get
-            {
+        internal TypeDescriptionProvider Provider {
+            get {
                 return TypeDescriptor.GetProviderRecursive(_type);
             }
         }
@@ -57,7 +61,7 @@ namespace System.ComponentModel
         ///     The GetCache method returns an instance of this cache.  GetCache will return 
         ///     null if there is no supported cache for an object.
         /// </devdoc>
-        public override IDictionary GetCache(object instance)
+	    public override IDictionary GetCache(object instance)
         {
             return Provider.GetCache(instance);
         }
@@ -71,7 +75,7 @@ namespace System.ComponentModel
         ///     If not overridden, the default implementation of this method will call
         ///     GetTypeDescriptor.GetComponentName.
         /// </devdoc>
-        public override string GetFullComponentName(object component)
+        public override string GetFullComponentName(object component) 
         {
             return Provider.GetFullComponentName(component);
         }
@@ -110,8 +114,7 @@ namespace System.ComponentModel
             return Provider.GetReflectionType(objectType, instance);
         }
 
-        public override Type GetRuntimeType(Type objectType)
-        {
+        public override Type GetRuntimeType(Type objectType) {
             return Provider.GetRuntimeType(objectType);
         }
 
@@ -128,9 +131,9 @@ namespace System.ComponentModel
             return Provider.GetTypeDescriptor(objectType, instance);
         }
 
-        public override bool IsSupportedType(Type type)
-        {
+        public override bool IsSupportedType(Type type) {
             return Provider.IsSupportedType(type);
         }
     }
 }
+

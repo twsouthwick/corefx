@@ -1,35 +1,40 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
+//------------------------------------------------------------------------------
+// <copyright file="ProvidePropertyAttribute.cs" company="Microsoft">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>                                                                
+//------------------------------------------------------------------------------
 
-namespace System.ComponentModel
-{
+/*
+ */
+namespace System.ComponentModel {
+
+    using System;
+    using System.Diagnostics;
+    using System.Security.Permissions;
+
     /// <devdoc>
     ///    <para> Specifies which methods are extender
     ///       properties.</para>
     /// </devdoc>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public sealed class ProvidePropertyAttribute : Attribute, ITypeId
-    {
-        private readonly string _propertyName;
-        private readonly string _receiverTypeName;
+    public sealed class ProvidePropertyAttribute : Attribute {
+        private readonly string propertyName;
+        private readonly string receiverTypeName;
 
         /// <devdoc>
         /// <para>Initializes a new instance of the <see cref='System.ComponentModel.ProvidePropertyAttribute'/> class.</para>
         /// </devdoc>
-        public ProvidePropertyAttribute(string propertyName, Type receiverType)
-        {
-            _propertyName = propertyName;
-            _receiverTypeName = receiverType.AssemblyQualifiedName;
+        public ProvidePropertyAttribute(string propertyName, Type receiverType) {
+            this.propertyName = propertyName;
+            this.receiverTypeName = receiverType.AssemblyQualifiedName;
         }
 
         /// <devdoc>
         /// <para>Initializes a new instance of the <see cref='System.ComponentModel.ProvidePropertyAttribute'/> class.</para>
         /// </devdoc>
-        public ProvidePropertyAttribute(string propertyName, string receiverTypeName)
-        {
-            _propertyName = propertyName;
-            _receiverTypeName = receiverTypeName;
+        public ProvidePropertyAttribute(string propertyName, string receiverTypeName) {
+            this.propertyName = propertyName;
+            this.receiverTypeName = receiverTypeName;
         }
 
         /// <devdoc>
@@ -37,53 +42,44 @@ namespace System.ComponentModel
         ///       Gets the name of a property that this class provides.
         ///    </para>
         /// </devdoc>
-        public string PropertyName
-        {
-            get
-            {
-                return _propertyName;
+        public string PropertyName {
+            get {
+                return propertyName;
             }
         }
-
+        
         /// <devdoc>
         ///    <para>
         ///       Gets the name of the data type this property can extend
         ///    </para>
         /// </devdoc>
-        public string ReceiverTypeName
-        {
-            get
-            {
-                return _receiverTypeName;
+        public string ReceiverTypeName {
+            get {
+                return receiverTypeName;
             }
         }
 
         /// <devdoc>
-        ///    <para>ProvidePropertyAttribute implements this to include the type name and the property name</para>
+        ///    <para>ProvidePropertyAttribute overrides this to include the type name and the property name</para>
         /// </devdoc>
-        object ITypeId.TypeId
-        {
-            get
-            {
-                return GetType().FullName + _propertyName;
+        public override object TypeId {
+            get {
+                return GetType().FullName + propertyName;
             }
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj == this)
-            {
+        public override bool Equals(object obj) {
+            if (obj == this) {
                 return true;
             }
 
             ProvidePropertyAttribute other = obj as ProvidePropertyAttribute;
 
-            return (other != null) && other._propertyName == _propertyName && other._receiverTypeName == _receiverTypeName;
+            return (other != null) && other.propertyName == propertyName && other.receiverTypeName == receiverTypeName;
         }
 
-        public override int GetHashCode()
-        {
-            return _propertyName.GetHashCode() ^ _receiverTypeName.GetHashCode();
+        public override int GetHashCode() {
+            return propertyName.GetHashCode() ^ receiverTypeName.GetHashCode();
         }
     }
 }

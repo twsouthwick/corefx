@@ -1,9 +1,15 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
+//------------------------------------------------------------------------------
+// <copyright file="DesignerSerializationVisibilityAttribute.cs" company="Microsoft">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>                                                                
+//------------------------------------------------------------------------------
 
-namespace System.ComponentModel
-{
+/*
+ */
+namespace System.ComponentModel {
+    using System;
+    using System.Diagnostics;
+    using System.Security.Permissions;
     /// <devdoc>
     ///    <para>
     ///         Specifies the visibility of this property or method as seen
@@ -11,8 +17,7 @@ namespace System.ComponentModel
     ///    </para>
     /// </devdoc>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Event)]
-    public sealed class DesignerSerializationVisibilityAttribute : Attribute, IIsDefaultAttribute
-    {
+    public sealed class DesignerSerializationVisibilityAttribute : Attribute {
         /// <devdoc>
         ///    <para>
         ///       Specifies that a visual designer should serialize the contents of this property,
@@ -39,7 +44,7 @@ namespace System.ComponentModel
         ///    </para>
         /// </devdoc>
         public static readonly DesignerSerializationVisibilityAttribute Visible = new DesignerSerializationVisibilityAttribute(DesignerSerializationVisibility.Visible);
-
+        
         /// <devdoc>
         ///    <para>
         ///       Specifies the default value, which is <see cref='System.ComponentModel.DesignerSerializationVisibilityAttribute.Visible'/>, that is, a visual designer 
@@ -49,16 +54,15 @@ namespace System.ComponentModel
         /// </devdoc>
         public static readonly DesignerSerializationVisibilityAttribute Default = Visible;
 
-        private DesignerSerializationVisibility _visibility;
+        private DesignerSerializationVisibility visibility;
 
         /// <devdoc>
         ///    <para>
         ///       Initializes a new instance of the System.ComponentModel.PersistContentsAttribute class.
         ///    </para>
         /// </devdoc>
-        public DesignerSerializationVisibilityAttribute(DesignerSerializationVisibility visibility)
-        {
-            _visibility = visibility;
+        public DesignerSerializationVisibilityAttribute(DesignerSerializationVisibility visibility) {
+            this.visibility = visibility;
         }
 
         /// <devdoc>
@@ -67,26 +71,23 @@ namespace System.ComponentModel
         ///       visual designer must generate special code to persist the value of a property.
         ///    </para>
         /// </devdoc>
-        public DesignerSerializationVisibility Visibility
-        {
-            get
-            {
-                return _visibility;
+        public DesignerSerializationVisibility Visibility {
+            get {
+                return visibility;
             }
         }
 
         /// <internalonly/>
         /// <devdoc>
         /// </devdoc>
-        public override bool Equals(object obj)
-        {
-            if (obj == this)
-            {
+        public override bool Equals(object obj) {
+    
+            if (obj == this) {
                 return true;
             }
 
             DesignerSerializationVisibilityAttribute other = obj as DesignerSerializationVisibilityAttribute;
-            return other != null && other.Visibility == _visibility;
+            return other != null && other.Visibility == visibility;
         }
 
         /// <devdoc>
@@ -94,17 +95,15 @@ namespace System.ComponentModel
         ///       Returns the hashcode for this object.
         ///    </para>
         /// </devdoc>
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return base.GetHashCode();
         }
 
         /// <devdoc>
         /// </devdoc>
         /// <internalonly/>
-        bool IIsDefaultAttribute.IsDefaultAttribute()
-        {
-            return this.Equals(Default);
+        public override bool IsDefaultAttribute() {
+            return (this.Equals(Default));
         }
     }
 }

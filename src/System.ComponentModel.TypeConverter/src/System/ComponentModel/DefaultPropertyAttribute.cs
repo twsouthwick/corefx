@@ -1,19 +1,25 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
+//------------------------------------------------------------------------------
+// <copyright file="DefaultPropertyAttribute.cs" company="Microsoft">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>                                                                
+//------------------------------------------------------------------------------
 
-namespace System.ComponentModel
-{
+/*
+ */
+namespace System.ComponentModel {
+    using System;
+    using System.Diagnostics;
+    using System.Security.Permissions;
+
     /// <devdoc>
     ///    <para>Specifies the default property for a component.</para>
     /// </devdoc>
     [AttributeUsage(AttributeTargets.Class)]
-    public sealed class DefaultPropertyAttribute : Attribute
-    {
+    public sealed class DefaultPropertyAttribute : Attribute {
         /// <devdoc>
         ///     This is the default event name.
         /// </devdoc>
-        private readonly string _name;
+        private readonly string name;
 
         /// <devdoc>
         ///    <para>
@@ -21,9 +27,8 @@ namespace System.ComponentModel
         ///       the <see cref='System.ComponentModel.DefaultPropertyAttribute'/> class.
         ///    </para>
         /// </devdoc>
-        public DefaultPropertyAttribute(string name)
-        {
-            _name = name;
+        public DefaultPropertyAttribute(string name) {
+            this.name = name;
         }
 
         /// <devdoc>
@@ -32,11 +37,9 @@ namespace System.ComponentModel
         ///       bound to.
         ///    </para>
         /// </devdoc>
-        public string Name
-        {
-            get
-            {
-                return _name;
+        public string Name {
+            get {
+                return name;
             }
         }
 
@@ -48,14 +51,12 @@ namespace System.ComponentModel
         /// </devdoc>
         public static readonly DefaultPropertyAttribute Default = new DefaultPropertyAttribute(null);
 
-        public override bool Equals(object obj)
-        {
-            DefaultPropertyAttribute other = obj as DefaultPropertyAttribute;
-            return (other != null) && other.Name == _name;
+        public override bool Equals(object obj) {
+            DefaultPropertyAttribute other = obj as DefaultPropertyAttribute; 
+            return (other != null) && other.Name == name;
         }
 
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return base.GetHashCode();
         }
     }

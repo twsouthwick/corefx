@@ -1,11 +1,18 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
+//------------------------------------------------------------------------------
+// <copyright file="CustomTypeDescriptor.cs" company="Microsoft">
+//     Copyright (c) Microsoft Corporation.  All rights reserved.
+// </copyright>                                                                
+//------------------------------------------------------------------------------
 
-namespace System.ComponentModel
+namespace System.ComponentModel 
 {
+
+    using System;
+    using System.Security.Permissions;
+
     /// <devdoc>
     /// </devdoc>
+    [HostProtection(SharedState = true)]
     public abstract class CustomTypeDescriptor : ICustomTypeDescriptor
     {
         private ICustomTypeDescriptor _parent;
