@@ -1644,6 +1644,40 @@ namespace System.IO.Packaging.Tests
                 package.Close();
             }
         }
+        
+        [Fact]
+        public void FlushSavesPackageContents()
+        {
+            var uri = new Uri("/something", UriKind.Relative);
+            var contentType = "something/other";
+
+            byte[] CreatePackage()
+            {
+               var ms = new MemoryStream();
+        var package = Package.Open(ms, FileMode.Create);
+                
+                    package.CreatePart(uri, contentType);
+
+                    Assert.Empty(ms.ToArray());
+
+                    package.Flush();
+
+                    // All data should be written after calling flush
+                    return ms.ToArray();
+                
+            }
+
+            var bytes = CreatePackage();
+
+            Assert.NotEmpty(bytes);
+
+            using (var ms = new MemoryStream(bytes))
+            using (var package = Package.Open(ms))
+            {
+                Assert.True(package.PartExists(uri));
+                Assert.Equal(contentType, package.GetPart(uri).ContentType);
+            }
+        }
 
 
         [Fact]

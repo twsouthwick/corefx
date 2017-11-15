@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Xml;                   //Required for Content Type File manipulation
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Reflection;
 
 namespace System.IO.Packaging
 {
@@ -198,6 +199,9 @@ namespace System.IO.Packaging
         {
             //Save the content type file to the archive.
             _contentTypeHelper.SaveToFile();
+
+            MethodInfo dynMethod = typeof(ZipArchive).GetMethod("WriteFile", BindingFlags.NonPublic | BindingFlags.Instance);
+            dynMethod.Invoke(_zipArchive, null);
         }
 
         /// <summary>
